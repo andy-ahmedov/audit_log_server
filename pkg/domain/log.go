@@ -1,6 +1,9 @@
 package audit
 
-import "errors"
+import (
+	"errors"
+	"time"
+)
 
 const (
 	ENTITY_USER = "USER"
@@ -31,10 +34,10 @@ var (
 )
 
 type LogItem struct {
-	Entity    string `bson:"entity"`
-	Action    string `bson:"Action"`
-	EntityID  int64  `bson:"entity_id"`
-	Timestamp string `bson:"timestamp"`
+	Entity    string    `bson:"entity"`
+	Action    string    `bson:"Action"`
+	EntityID  int64     `bson:"entity_id"`
+	Timestamp time.Time `bson:"timestamp"`
 }
 
 func ToPbEntity(entity string) (LogRequest_Entities, error) {
