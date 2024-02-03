@@ -1,19 +1,27 @@
 package server
 
-// создаем интерфейс с именем AuditService, в котором 
-// реализуется метод Insert(ctx contex.Context, req audit.LogRequest) error
-// создаем структуру AuditServer с 1-ым полем, который реализует этот интерфейс
-// создаем функцию NewAuditServer в котором возвращаем эту структуру
-// 
-// создаем у этой структуры метод Log, который принимает конекст и req и возвращает ошибку
-// она выполняет метод Сервиса и возвращает пустой аудит и ошибку
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
+import (
+	"context"
+
+	audit "github.com/andy-ahmedov/audit_log_server/pkg/domain"
+)
+
+type AuditService interface {
+	Insert(ctx context.Context, req *audit.LogRequest) error
+}
+
+type AuditServer struct {
+	service AuditService
+}
+
+func NewAuditService(service AuditService) *AuditServer {
+	return &AuditServer{
+		service: service,
+	}
+}
+
+func (as *AuditServer) Log(ctx context.Context, req *audit.LogRequest) (*audit.Empty, error) {
+	err := as.service.Insert(ctx, req)
+
+	return &audit.Empty{}, err
+}

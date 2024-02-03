@@ -1,12 +1,36 @@
 package server
 
-// создаем структуру сервер с двумя полями:
-//	*gRPC сервер
-//	audit.AuditServiceServer
-// создаем его конструктор, в которой дается второй параметр
-// 
-// создаем метод ListenAndServe в который дается порт и возвращается ошибка
-// создаем аддр в который спринтуем порт
-// отдаем этот порт в метод Листен библы net вторым параметром, а первым указываем протокол tcp
-// вызываем у библы audit метод РегистрацияАудитСервисаСервер, в который передаем два сервера
-// вызываем у grps сервера метод Serve и передаем переменную предпоследнюю
+import (
+	"fmt"
+	"net"
+
+	audit "github.com/andy-ahmedov/audit_log_server/pkg/domain"
+	"google.golang.org/grpc"
+)
+
+type Server struct {
+	grpcServer  *grpc.Server
+	auditServer audit.AuditServiceServer
+}
+
+func New(auditServer audit.AuditServiceServer) *Server {
+	return &Server{
+		grpcServer:  grpc.NewServer(),
+		auditServer: auditServer,
+	}
+}
+
+func (s *Server) ListenAndServe(port int) error {
+	addr := fmt.Sprintf("%d", port)
+
+	lis, err := net.Listen("tcp", addr)
+	if err != nil {
+		return err
+	}
+
+	audit.RegisterAuditServiceServer(s.grpcServer, s.auditServer)
+
+	err = s.grpcServer.Serve(lis)
+
+	return err
+}
